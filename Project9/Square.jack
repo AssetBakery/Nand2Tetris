@@ -1,0 +1,108 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/09/Square/Square.jack
+
+/** Implements a graphical square. */
+class Square {
+
+   field int x, y; // screen location of the square's top-left corner
+   field int size; // length of this square, in pixels
+   field int yVel;
+   field int jumps;
+   field boolean overlap;
+
+   field int enemyX, enemyY;
+
+   /** Constructs a new square with a given location and size. */
+   constructor Square new(int Ax, int Ay) {
+      let x = Ax;
+      let y = Ay;
+      let enemyX = 100;
+      let enemyY = Random.randRange(100);
+      let size = 32;
+      let yVel = 0;
+      let jumps = 0;
+      let overlap = false;
+      do draw();
+      return this;
+   }
+
+   /** Disposes this square. */
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Draws the square on the screen. */
+   method void draw() {
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+      return;
+   }
+
+   /** Erases the square from the screen. */
+   method void erase() {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+      return;
+   }
+
+   method void tick() {
+      let y = y + yVel;
+      let yVel = yVel + 1;
+
+      /** Screen Bounds */
+      if (y > 200) {
+         let y = 200;
+         let yVel = 0;
+      }
+      if (y < 0) {
+         let y = 0;
+      }
+
+      /** Enemy */
+      let enemyX = enemyX - 8;
+      if(enemyX < 0) {
+         let enemyX = 200;
+         let enemyY = Random.randRange(200);
+      }
+
+      /** Check Hit */
+      if ((enemyX > x) & (enemyX < (x + size)) & (enemyY > y) & (enemyY < (y + size))) {
+         let y = 0;
+         let yVel = 0;
+      }
+
+      /** Draw */
+      do Screen.setColor(false);
+      do Screen.drawRectangle(0, 0, 250, 250);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x, y, x + size, y + size);
+
+      do Screen.setColor(true);
+      do Screen.drawRectangle(enemyX, enemyY, enemyX + size, enemyY + size);
+
+      return;
+   }
+
+   /** Moves the square up by 2 pixels. */
+   method void flap() {
+      let yVel = -8;
+      let jumps = jumps + 1;
+      return;
+   }
+
+   /** Moves the square down by 2 pixels. */
+   method void moveDown() {
+      if ((y + size) < 254) {
+         do Screen.setColor(false);
+         do Screen.drawRectangle(x, y, x + size, y + 1);
+         let y = y + 2;
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x, (y + size) - 1, x + size, y + size);
+      }
+      return;
+   }
+
+}
